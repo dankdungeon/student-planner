@@ -1,15 +1,18 @@
-import express, {Request, Response} from 'express';
+import express from 'express';
+import taskRouter from './routes/taskRouter';
 
 const app = express();
 const PORT = 3000;
 
-app.use(express.json());
+// parse JSON requests
+app.use(express.json()); 
 
-// Routes
 
+// mounts router at '/api'
+app.use('/tasks', taskRouter);
 
 
 // Deployment
 app.listen(PORT, () => {
-    console.log(`Server running at PORT:${PORT}`);
+    console.log(`Server running at http://localhost:${PORT}`);
 });

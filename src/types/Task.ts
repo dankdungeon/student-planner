@@ -3,8 +3,8 @@ export interface Task {
     title: string; 
     description?: string; 
     type: 'task' | 'project' | 'exam';
-    class?: string;
-    duedate: Date; // uses Date object
+    className?: string;
     priority?: 'low' | 'medium' | 'high';
     status?: 'pending' | 'in-progess' | 'completed';
+    dueDate: Date; // uses Date object
 }
