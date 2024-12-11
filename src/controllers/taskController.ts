@@ -9,13 +9,13 @@ export const getAllTasks = (req: Request, res: Response): void => {
 }
 
 export const addTask = (req: Request, res:Response): void => {
-    const { title, description, type, className, priority, dueDate } = req.body;
+    const { title, description, task, className, priority, dueDate } = req.body;
 
     const newTask: Task = {
         id: Date.now().toString(),
         title,
         description: description || undefined,
-        type,
+        task,
         className: className || undefined,
         priority,
         status: 'pending',
