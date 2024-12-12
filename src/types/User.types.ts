@@ -10,8 +10,3 @@ export interface UserResponse {
     userId: string;
     username: string;
 }
-
-export interface AuthResponse {
-    user: UserResponse;
-    jwtToken: string;
-}
