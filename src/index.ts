@@ -1,16 +1,19 @@
 import express from 'express';
-import taskRouter from './routes/taskRouter';
+import taskRouter from './routers/taskRouter';
+import userRouter from './routers/userRouter';
+import dotenv from 'dotenv';
 
+dotenv.config({ path: '../.env'});
+const PORT = process.env.PORT
 const app = express();
-const PORT = 3000;
 
 // parse JSON requests
 app.use(express.json()); 
 
 
-// mounts router at '/api'
+// mounting routers
 app.use('/tasks', taskRouter);
-
+app.use('/users', userRouter);
 
 // Deployment
 app.listen(PORT, () => {

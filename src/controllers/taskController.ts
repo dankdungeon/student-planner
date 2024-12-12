@@ -1,18 +1,21 @@
-import { Router, Request, Response } from 'express';
+import { Request, Response } from 'express';
 import { Task } from '../types/Task';
+import { generateUUID } from '../utils/uuid';
 
 let tasks: Task[] = []; // in memory storage
 
-// get all tasks from in mem storage
+// CRUD operations
 export const getAllTasks = (req: Request, res: Response): void => {
     res.json(tasks);
 }
 
-export const addTask = (req: Request, res:Response): void => {
-    const { title, description, task, className, priority, dueDate } = req.body;
+export const addTask = async (req: Request, res:Response): Promise<void> => {
+    const { userId, title, description, task, className, priority, dueDate } = req.body;
 
+    const newUUID = await generateUUID();
     const newTask: Task = {
-        id: Date.now().toString(),
+        taskId: newUUID,
+        userId,
         title,
         description: description || undefined,
         task,
@@ -20,16 +23,16 @@ export const addTask = (req: Request, res:Response): void => {
         priority,
         status: 'pending',
         dueDate: new Date(dueDate),
-    };
+    }
     tasks.push(newTask);
     res.status(201).json(newTask); // 201 == created successful response
 }
 
-export const updateTask = (req: Request, res: Response): void => {
-    const { id } = req.params;
-    const { title, description, type, className, priority, status, dueDate } = req.body;
+export const updateTask = async (req: Request, res: Response): Promise<void> => {
+    const { taskId } = req.params;
+    const { title, description, task, className, priority, status, dueDate } = req.body;
 
-    const taskIndex = tasks.findIndex(task => task.id === id);
+    const taskIndex = tasks.findIndex(task => task.taskId === taskId);
     if (taskIndex === -1) {
         res.status(404).json({ error: 'Task not found' });
         return;
@@ -39,7 +42,7 @@ export const updateTask = (req: Request, res: Response): void => {
         ...tasks[taskIndex],
         ...(title && { title }),
         ...(description && { description }),
-        ...(type && { type }),
+        ...(task && { task }),
         ...(className && { className }),
         ...(priority && { priority }),
         ...(status && { status }),
@@ -49,9 +52,9 @@ export const updateTask = (req: Request, res: Response): void => {
     res.status(200).json(tasks[taskIndex]);
 }
 
-export const deleteTask = (req: Request, res: Response): void => {
-    const { id } = req.params;
-    const taskIndex = tasks.findIndex(task => task.id === id);
+export const deleteTask = async (req: Request, res: Response): Promise<void> => {
+    const { taskId } = req.params;
+    const taskIndex = tasks.findIndex(task => task.taskId === taskId);
     if (taskIndex === -1) {
         res.status(404).json({ error: 'Task not found' });
         return;

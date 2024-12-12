@@ -1,5 +1,6 @@
 export interface Task {
-    id: string; 
+    taskId: string; 
+    userId: string;
     title: string; 
     description?: string; 
     task: 'assignment' | 'project' | 'exam';
