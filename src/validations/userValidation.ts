@@ -29,11 +29,3 @@ export const validateDeleteUser = [
     param('userId')
     .isString().notEmpty().withMessage('ID is required')
 ]
-
-export const validateUserLogin = [
-    body('username')
-    .isString().notEmpty().withMessage('Username is required'),
-
-    body('password')
-    .isString().notEmpty().withMessage('Password is required')
-]

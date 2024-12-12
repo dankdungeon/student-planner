@@ -89,36 +89,3 @@ export const deleteUser = async (req: Request, res: Response): Promise<void> => 
     }
 }
 
-// Authentication logic
-export const userLogin = async (req: Request, res: Response): Promise<void> => {
-    try {
-        const { username, password } = req.body;
-        const user = users.find(u => u.username === username);
-
-        if (!user) 
-            throw new Error('User not found.');
-
-        const isValid: boolean = await passwordValidation(password, user.password);
-        if (!isValid) 
-            throw new Error('Invalid password');
-
-        const userResponse: UserResponse = { userId: user.userId, username: user.username }
-        const authResponse: AuthResponse = generateToken(userResponse); 
-        
-        res.status(200).json(authResponse);
-    }
-    catch (error) {
-        if (error instanceof Error) {
-            if (error.message === 'User not found') {
-                res.status(404).json({ error: error.message });
-            } else if (error.message === 'Invalid password') {
-                res.status(403).json({ error: error.message });
-            } else {
-                res.status(500).json({ error: 'Internal server error' });
-            }
-        }
-        else {
-            res.status(500).json({ error: 'Internal server error' })
-        }
-    }
-}

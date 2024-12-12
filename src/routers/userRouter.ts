@@ -1,12 +1,9 @@
 import { Router } from 'express';
-import { getAllUsers, addUser, updateUser, deleteUser, userLogin } from '../controllers/userController';
-import { validateAddUser, validateUpdateUser, validateDeleteUser, validateUserLogin } from '../validations/userValidation';
+import { getAllUsers, addUser, updateUser, deleteUser } from '../controllers/userController';
+import { validateAddUser, validateUpdateUser, validateDeleteUser } from '../validations/userValidation';
 import { handleValidationErrors } from '../middleware/handleValidationErrors';
 
 const router = Router();
-
-// User login
-router.post('/login', validateUserLogin, handleValidationErrors, userLogin);
 
 // REST METHODS
 router.get('/get', getAllUsers); // not going to be here after database, or something else
