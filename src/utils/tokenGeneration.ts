@@ -1,4 +1,4 @@
-import jwt from'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 import { UserResponse } from '../types/User.types';
 import { AuthResponse } from '../types/AuthResponse';
 import dotenv from 'dotenv';
