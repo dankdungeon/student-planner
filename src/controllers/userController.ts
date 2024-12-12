@@ -1,10 +1,9 @@
 import { Request, Response } from 'express';
 import { User, UserResponse } from '../types/User.types';
-import { hashPassword, passwordValidation } from '../utils/hashing';
-import { generateToken } from '../middleware/authentication';
+import { hashPassword } from '../utils/hashing';
 import { generateUUID } from '../utils/uuid';
 
-let users: User[] = []; // in mem storage
+export let users: User[] = []; // in mem storage
 
 // CRUD operations
 export const getAllUsers =  async (req: Request, res: Response): Promise<void> => {
