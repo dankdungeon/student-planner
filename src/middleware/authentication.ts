@@ -7,7 +7,7 @@ dotenv.config({ path: '../../.env'})
 export const generateToken = (user: UserResponse): AuthResponse => {
     const secretKey = process.env.JWT_SECRET || '696969';
     const options = {
-        expiresIn: '1h',
+        expiresIn: '4h',
     }
 
     const token: string = jwt.sign(user, secretKey, options);

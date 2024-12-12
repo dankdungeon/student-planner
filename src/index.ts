@@ -12,8 +12,8 @@ app.use(express.json());
 
 
 // mounting routers
-app.use('/tasks', taskRouter);
-app.use('/users', userRouter);
+app.use('/task', taskRouter);
+app.use('/user', userRouter);
 
 // Deployment
 app.listen(PORT, () => {

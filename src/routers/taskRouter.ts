@@ -5,9 +5,9 @@ import { handleValidationErrors } from '../middleware/handleValidationErrors';
 const router = Router();
 
 // REST methods on the router, calls the controller
-router.get('/', getAllTasks);
-router.post('/', validateAddTask, handleValidationErrors, addTask);
-router.put('/:id', validateUpdateTask, handleValidationErrors, updateTask);
-router.delete('/:id', validateDeleteTask, handleValidationErrors, deleteTask);
+router.get('/get', getAllTasks);
+router.post('/add', validateAddTask, handleValidationErrors, addTask);
+router.put('/update/:id', validateUpdateTask, handleValidationErrors, updateTask);
+router.delete('/delete/:id', validateDeleteTask, handleValidationErrors, deleteTask);
 
 export default router;
