@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { User, UserResponse } from '../types/User.types';
+import { User, UserResponse, UserRequest } from '../types/User.types';
 import { hashPassword } from '../utils/hashing';
 import { generateUUID } from '../utils/uuid';
 import { successResponse , errorResponse } from '../utils/response';
@@ -18,7 +18,7 @@ export const getAllUsers =  async (req: Request, res: Response): Promise<void> =
 
 export const addUser = async (req: Request, res: Response): Promise<void> => {
     try {
-        const { username, email, password } = req.body;
+        const { username, email, password }: UserRequest = req.body;
 
         const hashedPassword = await hashPassword(password);
         const newUUID = await generateUUID();
@@ -29,12 +29,12 @@ export const addUser = async (req: Request, res: Response): Promise<void> => {
             email,
             password: hashedPassword
         }
-        const newSanitizedUser: UserResponse = {
+        const userResponse: UserResponse = {
             userId: newUUID,
             username
         }
         users.push(newUser);
-        successResponse(res, newSanitizedUser, "Added user successfully", 201);
+        successResponse(res, userResponse, "Added user successfully", 201);
     }
     catch (error) {
         errorResponse(res, "Failed to add user", 400);
@@ -44,7 +44,7 @@ export const addUser = async (req: Request, res: Response): Promise<void> => {
 export const updateUser = async (req: Request, res: Response): Promise<void> => {
     try {
         const { userId } = req.params;
-        const { username, email, password } = req.body;
+        const { username, email, password }: UserRequest = req.body;
     
         const userIndex = users.findIndex(user => user.userId === userId);
         if (userIndex === -1) {
@@ -61,11 +61,11 @@ export const updateUser = async (req: Request, res: Response): Promise<void> => 
             ...(email && { email }),
             ...(password && { password: hashedPassword })
         }
-        const newSanitizedUser: UserResponse = {
+        const userResponse: UserResponse = {
             userId: users[userIndex].userId,
             username: users[userIndex].username
         }
-        successResponse(res, newSanitizedUser, "Updated user successfully", 201);
+        successResponse(res, userResponse, "Updated user successfully", 201);
 
     }
     catch (error) {
@@ -82,8 +82,9 @@ export const deleteUser = async (req: Request, res: Response): Promise<void> => 
             return;
         }
     
-        const deletedUser = users.splice(userIndex, 1);
-        successResponse(res, deletedUser[0], "Deleted user successfully", 200);
+        const [deletedUser] = users.splice(userIndex, 1);
+        const userResponse: UserResponse = { userId: deletedUser.userId, username: deletedUser.username };
+        successResponse(res, userResponse, "Deleted user successfully", 200);
     }
     catch (error) {
         errorResponse(res, "User not found", 400);
