@@ -21,7 +21,7 @@ export const addTask = async (req: Request, res:Response): Promise<void> => {
         description: description || undefined,
         task,
         className: className || undefined,
-        priority,
+        priority: priority || undefined,
         status: 'pending',
         dueDate: new Date(dueDate),
     }

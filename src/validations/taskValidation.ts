@@ -1,66 +1,81 @@
 import { body, param } from 'express-validator';
-// addtask
-// updatetask
-// deletetask
-export const validateAddTask = [
-    body('title')
-    .isString().withMessage('Title must be a string')
+
+// define validation chains as functions so that
+// they are instances when called, so they are not mutable
+const taskIdValidator = () =>
+    param("taskId")
+    .isString()
     .trim()
-    .notEmpty().withMessage('Title cannot be empty if provided'),
+    .notEmpty()
 
-    body('description').optional()
-    .isString().withMessage('Description must be a string')
-    .trim(),
+const userIdValidator = () => 
+    body("userId")
+    .isString()
+    .trim()
+    .notEmpty()
 
-    body('task')
-    .isString().withMessage('Task must be a string')
-    .isIn(['assignment', 'project', 'exam']).withMessage('Invalid task type'),
+const titleValidator = () => 
+    body("title")
+    .isString()
+    .trim()
+    .notEmpty()
 
-    body('className').optional()
-    .isString().withMessage('Class name must be a string')
-    .trim(),
+const descriptionValidator = () => 
+    body("description")
+    .isString()
+    .trim()
+    .notEmpty()
 
-    body('priority')
-    .isString().withMessage('Priority must be a string')
-    .isIn(['low', 'medium', 'high']).withMessage('Invalid status'),
+const taskValidator = () =>
+    body("task")
+    .isString()
+    .isIn(['assignment', 'project', 'exam'])
+    .notEmpty()
 
-    body('dueDate').optional()
-    .isISO8601().withMessage('Due date must be a valid date')
+const classNameValidator = () =>
+    body("className")
+    .isString()
+    .trim()
+    .notEmpty()
 
+const priorityValidator = () =>
+    body("priority")
+    .isString()
+    .isIn(['low', 'medium', 'high'])
+    .notEmpty()
+
+const statusValidator = () =>
+    body("status")
+    .isString()
+    .isIn(['pending', 'in-progess', 'completed'])
+    .notEmpty()
+
+const dueDateValidator = () =>
+    body("dueDate")
+    .isISO8601()
+    .trim()
+    .notEmpty()
+
+export const validateAddTask = [
+    userIdValidator(),
+    titleValidator(),
+    descriptionValidator().optional(),
+    taskValidator(),
+    classNameValidator().optional(),
+    priorityValidator().optional(),
+    dueDateValidator()
 ]
 
 export const validateUpdateTask = [
-    param('taskId').isString().notEmpty().withMessage('ID is required'),
-
-    body('title').optional()
-    .isString().withMessage('Title must be a string')
-    .trim()
-    .notEmpty().withMessage('Title cannot be empty if provided'),
-
-    body('description').optional()
-    .isString().withMessage('Description must be a string')
-    .trim(),
-
-    body('task').optional()
-    .isString().withMessage('Task must be a string')
-    .isIn(['assignment', 'project', 'exam']).withMessage('Invalid task type'),
-
-    body('className').optional()
-    .isString().withMessage('Class name must be a string')
-    .trim(),
-
-    body('priority').optional()
-    .isString().withMessage('Priority must be a string')
-    .isIn(['low', 'medium', 'high']).withMessage('Invalid status'),
-
-    body('status').optional()
-    .isString().withMessage('Status must be a string')
-    .isIn(['pending', 'in-progess', 'completed']),
-
-    body('dueDate').optional()
-    .isISO8601().withMessage('Due date must be a valid date')
+    taskIdValidator(),
+    titleValidator().optional(),
+    descriptionValidator().optional(),
+    classNameValidator().optional(),
+    priorityValidator().optional(),
+    statusValidator().optional(),
+    dueDateValidator().optional()
 ]
 
 export const validateDeleteTask = [
-    param('taskId').isString().notEmpty().withMessage('ID is required')
+    taskIdValidator()
 ]
