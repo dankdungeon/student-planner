@@ -1,4 +1,4 @@
-import { AuthResponse } from '../types/AuthResponse';
+import { AuthResponse, LoginRequest, LogoutRequest, RefreshRequest, TokenResponse } from '../types/AuthResponse';
 import { users } from './userController';
 import { UserResponse } from '../types/User.types';
 import { Request, Response } from 'express';
@@ -14,7 +14,7 @@ implement login, logout, token refreshing
 const refreshTokens = new Set<string>();
 
 export const Login = async (req: Request, res:Response): Promise<void> => {
-    const { username, password } = req.body;
+    const { username, password }: LoginRequest = req.body;
 
     // Validate credentials
     try {
@@ -48,7 +48,7 @@ export const Login = async (req: Request, res:Response): Promise<void> => {
 
 export const Logout = async(req: Request, res: Response): Promise<void> => {
     try {
-        const { refreshToken } = req.body;
+        const { refreshToken }: LogoutRequest = req.body;
 
         if (!refreshTokens.has(refreshToken))
             throw new Error('Invalid or expired refresh token');
@@ -71,7 +71,7 @@ export const Logout = async(req: Request, res: Response): Promise<void> => {
 
 export const refreshAccessToken = async (req: Request, res: Response): Promise<void> => {
     try {
-        const { refreshToken } = req.body;
+        const { refreshToken }: RefreshRequest = req.body;
 
         const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || '123';
         const user = jwt.verify(refreshToken, JWT_REFRESH_SECRET) as UserResponse;
@@ -84,11 +84,12 @@ export const refreshAccessToken = async (req: Request, res: Response): Promise<v
         refreshTokens.delete(refreshToken);
         refreshTokens.add(newRefreshToken);
 
-
-        successResponse(res, {
+        const newTokens: TokenResponse = {
             accessToken: newAccessToken,
             refreshToken: newRefreshToken
-        } , "Refreshed token successfully", 200);
+        }
+
+        successResponse(res, newTokens, "Refreshed token successfully", 200);
     }
     catch (error) {
         if (error instanceof jwt.JsonWebTokenError) {
