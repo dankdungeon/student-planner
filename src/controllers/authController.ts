@@ -5,6 +5,7 @@ import { Request, Response } from 'express';
 import { passwordValidation } from '../utils/hashing';
 import { generateAccessToken, generateRefreshToken, generateTokens } from '../utils/tokenGeneration';
 import jwt from 'jsonwebtoken';
+import { successResponse, errorResponse } from '../utils/response';
 
 /*
 implement login, logout, token refreshing
@@ -28,19 +29,19 @@ export const Login = async (req: Request, res:Response): Promise<void> => {
         const authResponse: AuthResponse = await generateTokens(userResponse);
 
         refreshTokens.add(authResponse.refreshToken);
-        res.status(200).json(authResponse);
+        successResponse(res, authResponse, "Logged in successfully", 200);
     }
     catch (error) {
         if (error instanceof Error) {
             if (error.message === 'User not found')
-                res.status(404).json({ error: error.message });
+                errorResponse(res, error.message, 404);
             else if (error.message === 'Invalid password')
-                res.status(403).json({ error: error.message })
+                errorResponse(res, error.message, 403);
             else
-                res.status(403).json({ error: error.message });
+                errorResponse(res, error.message, 403);
         }
         else {
-            res.status(403).json({ error: 'Failed to log in' });
+            errorResponse(res, "Failed to login", 403);
         }
     }
 }
@@ -53,17 +54,18 @@ export const Logout = async(req: Request, res: Response): Promise<void> => {
             throw new Error('Invalid or expired refresh token');
 
         refreshTokens.delete(refreshToken);
-        res.status(200).json({ message: 'Logged out successfully' });
+        successResponse(res, refreshToken, "Logged out successfully", 200);
     }
     catch (error) {
         if (error instanceof Error) {
             if (error.message === 'Invalid or expired refresh token')
-                res.status(403).json({ error: error.message })
+                errorResponse(res, error.message, 403);
             else
                 res.status(403).json({ error: error.message });
-        }        
-        res.status(403).json({ error: 'Failed to log out'});
-        
+                errorResponse(res, error.message, 403);
+        }
+        else        
+            errorResponse(res, "Failed to log out", 403);
     }
 }
 
@@ -82,18 +84,18 @@ export const refreshAccessToken = async (req: Request, res: Response): Promise<v
         refreshTokens.delete(refreshToken);
         refreshTokens.add(newRefreshToken);
 
-        res.status(200).json({
+
+        successResponse(res, {
             accessToken: newAccessToken,
             refreshToken: newRefreshToken
-        })
+        } , "Refreshed token successfully", 200);
     }
     catch (error) {
-        if (error instanceof jwt.TokenExpiredError) {
-            res.status(403).json({ error: 'Refresh token expired' });
+        if (error instanceof jwt.JsonWebTokenError) {
+            errorResponse(res, error.message, 403);
         }
         else {
-            res.status(403).json({ error: 'Failed to refresh access token' });
-
+            errorResponse(res, "Authentication failed", 403);
         }
     }
 }

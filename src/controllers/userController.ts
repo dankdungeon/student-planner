@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { User, UserResponse } from '../types/User.types';
 import { hashPassword } from '../utils/hashing';
 import { generateUUID } from '../utils/uuid';
+import { successResponse , errorResponse } from '../utils/response';
 
 export let users: User[] = []; // in mem storage
 
@@ -11,7 +12,7 @@ export const getAllUsers =  async (req: Request, res: Response): Promise<void> =
         res.json(users);
     }
     catch (error) {
-        res.status(500).json({ error: 'Failed to get users' });
+        errorResponse(res, "Failed to get users", 500);
     }
 }
 
@@ -33,10 +34,10 @@ export const addUser = async (req: Request, res: Response): Promise<void> => {
             username
         }
         users.push(newUser);
-        res.status(201).json(newSanitizedUser);
+        successResponse(res, newSanitizedUser, "Added user successfully", 201);
     }
     catch (error) {
-        res.status(400).json({ error: 'Failed to add user' })
+        errorResponse(res, "Failed to add user", 400);
     }
 }
 
@@ -47,7 +48,7 @@ export const updateUser = async (req: Request, res: Response): Promise<void> => 
     
         const userIndex = users.findIndex(user => user.userId === userId);
         if (userIndex === -1) {
-            res.status(404).json({ error: 'User not found'});
+            errorResponse(res, "User not found", 404);
             return;
         }
         
@@ -64,10 +65,11 @@ export const updateUser = async (req: Request, res: Response): Promise<void> => 
             userId: users[userIndex].userId,
             username: users[userIndex].username
         }
-        res.status(200).json(newSanitizedUser); 
+        successResponse(res, newSanitizedUser, "Updated user successfully", 201);
+
     }
     catch (error) {
-        res.status(400).json({ error: 'User not found'});
+        errorResponse(res, "User not found", 400);
     }
 }
 
@@ -76,15 +78,15 @@ export const deleteUser = async (req: Request, res: Response): Promise<void> => 
         const { userId } = req.params;
         const userIndex = users.findIndex(user => user.userId === userId);
         if (userIndex === -1) {
-            res.status(404).json({ error: 'User not found'});
+            errorResponse(res, "User not found", 400);
             return;
         }
     
         const deletedUser = users.splice(userIndex, 1);
-        res.status(200).json(deletedUser[0]);
+        successResponse(res, deletedUser[0], "Deleted user successfully", 200);
     }
     catch (error) {
-        res.status(400).json({ error: 'User not found '});
+        errorResponse(res, "User not found", 400);
     }
 }
 

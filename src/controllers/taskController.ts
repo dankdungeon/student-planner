@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { Task } from '../types/Task';
 import { generateUUID } from '../utils/uuid';
+import { successResponse, errorResponse } from '../utils/response';
 
 let tasks: Task[] = []; // in memory storage
 
@@ -25,7 +26,7 @@ export const addTask = async (req: Request, res:Response): Promise<void> => {
         dueDate: new Date(dueDate),
     }
     tasks.push(newTask);
-    res.status(201).json(newTask); // 201 == created successful response
+    successResponse(res, newTask, "Added tasks successfully", 201);
 }
 
 export const updateTask = async (req: Request, res: Response): Promise<void> => {
@@ -34,7 +35,7 @@ export const updateTask = async (req: Request, res: Response): Promise<void> => 
 
     const taskIndex = tasks.findIndex(task => task.taskId === taskId);
     if (taskIndex === -1) {
-        res.status(404).json({ error: 'Task not found' });
+        errorResponse(res, "Task not found", 404);
         return;
     }
 
@@ -48,18 +49,18 @@ export const updateTask = async (req: Request, res: Response): Promise<void> => 
         ...(status && { status }),
         ...(dueDate && { dueDate: new Date(dueDate) }),
     }
-
-    res.status(200).json(tasks[taskIndex]);
+    successResponse(res, tasks[taskIndex], "Updated task successfully", 200);
 }
 
 export const deleteTask = async (req: Request, res: Response): Promise<void> => {
     const { taskId } = req.params;
     const taskIndex = tasks.findIndex(task => task.taskId === taskId);
     if (taskIndex === -1) {
-        res.status(404).json({ error: 'Task not found' });
+        errorResponse(res, "Task not found", 404);
         return;
     }
 
     const deletedTask = tasks.splice(taskIndex, 1);
     res.status(200).json(deletedTask[0]);
+    successResponse(res, deletedTask[0], "Deleted task successfully", 200);
 }
