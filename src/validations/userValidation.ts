@@ -1,6 +1,6 @@
 import { body, param } from 'express-validator';
 
-const usernameValidator = () => 
+export const usernameValidator = () => 
     body("username")
     .isString()
     .trim()
@@ -13,7 +13,7 @@ const emailValidator = () =>
     .isEmail()
     .notEmpty()
 
-const passwordValidator = () =>
+export const passwordValidator = () =>
     body("password")
     .isString()
     .trim()
