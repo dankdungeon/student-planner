@@ -53,7 +53,7 @@ export const updateUser = async (req: Request, res: Response): Promise<void> => 
         }
         
         // hash the password
-        const hashedPassword = await hashPassword(password);
+        const hashedPassword = password ? await hashPassword(password) : undefined;
 
         users[userIndex] = { // update this
             ...users[userIndex],

@@ -1,31 +1,43 @@
 import { body, param } from 'express-validator';
 
+const usernameValidator = () => 
+    body("username")
+    .isString()
+    .trim()
+    .notEmpty()
+
+const emailValidator = () => 
+    body("email")
+    .isString()
+    .trim()
+    .isEmail()
+    .notEmpty()
+
+const passwordValidator = () =>
+    body("password")
+    .isString()
+    .trim()
+    .notEmpty()
+
+const userIdValidator = () =>
+    param("userId")
+    .isString()
+    .trim()
+    .notEmpty()
+
 export const validateAddUser = [
-    body('username')
-    .isString().notEmpty().withMessage('Username is required'),
-
-    body('email')
-    .isEmail().notEmpty().withMessage('Email is required'),
-
-    body('password')
-    .isString().notEmpty().isLength({ min: 6 }).withMessage('Password is required, must be at least 6 characters')
+    usernameValidator(),
+    emailValidator(),
+    passwordValidator()
 ]
 
 export const validateUpdateUser = [
-    param('userId')
-    .isString().notEmpty().withMessage('ID is required'),
-
-    body('username')
-    .isString().notEmpty().withMessage('Username is required'),
-
-    body('email')
-    .isEmail().notEmpty().withMessage('Email is required'),
-
-    body('password')
-    .isString().notEmpty().isLength({ min: 6 }).withMessage('Password is required, must be at least 6 characters')
+    userIdValidator(),
+    usernameValidator().optional(),
+    emailValidator().optional(),
+    passwordValidator().optional()
 ]
 
 export const validateDeleteUser = [
-    param('userId')
-    .isString().notEmpty().withMessage('ID is required')
+    userIdValidator()
 ]
