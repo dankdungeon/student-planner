@@ -23,7 +23,6 @@ export interface TaskResponse {
 }
 
 export interface AddTaskRequest {
-    userId: string;
     title: string;
     description?: string;
     task: 'assignment' | 'project' | 'exam';
