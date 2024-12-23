@@ -55,3 +55,20 @@ export const authAccessToken = async (req: Request, res: Response, next: NextFun
             errorResponse(res, "Authentication failed", 403);
     }
 }
+
+export const authRefreshToken = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const refreshToken: string | undefined = req.cookies?.refreshToken;
+        if (!refreshToken)
+            return errorResponse(res, "No refresh token provided", 401);
+
+        const JWT_REFRESH_SECRET: string = process.env.JWT_REFRESH_SECRET || '696969';
+        const userPayload: UserResponse = await verifyToken(refreshToken, JWT_REFRESH_SECRET);
+
+        req.user = userPayload;
+        next();
+    }
+    catch (error) {
+        return errorResponse(res, "Invalid or expired refreshToken", 401);
+    }
+}

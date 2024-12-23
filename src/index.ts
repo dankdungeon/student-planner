@@ -3,6 +3,7 @@ import taskRouter from './routers/taskRouter';
 import userRouter from './routers/userRouter';
 import authRouter from './routers/authRouter';
 import dotenv from 'dotenv';
+import cookieParser from 'cookie-parser';
 
 dotenv.config({ path: '../.env'});
 const PORT = process.env.PORT
@@ -10,6 +11,8 @@ const app = express();
 
 // parse JSON requests
 app.use(express.json()); 
+// parse cookies
+app.use(cookieParser());
 
 
 // mounting routers
