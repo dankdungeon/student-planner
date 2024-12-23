@@ -3,7 +3,7 @@ export interface User {
     username: string;
     email: string;
     password: string;
-    tasks?: string[]; // array of task ids
+    tasks: string[]; // array of task ids
 }
 
 export interface UserResponse {

@@ -22,12 +22,12 @@ export const addUser = async (req: Request, res: Response): Promise<void> => {
 
         const hashedPassword = await hashPassword(password);
         const newUUID = await generateUUID();
-
         const newUser: User = {
             userId: newUUID,
             username,
             email,
-            password: hashedPassword
+            password: hashedPassword,
+            tasks: []
         }
         const userResponse: UserResponse = {
             userId: newUUID,

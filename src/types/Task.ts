@@ -6,7 +6,7 @@ export interface Task {
     task: 'assignment' | 'project' | 'exam';
     className?: string;
     priority?: 'low' | 'medium' | 'high';
-    status: 'pending' | 'in-progess' | 'completed';
+    status: 'pending' | 'in-progress' | 'completed';
     dueDate: Date; // uses Date object
 }
 
@@ -18,7 +18,7 @@ export interface TaskResponse {
     task: 'assignment' | 'project' | 'exam';
     className?: string;
     priority?: 'low' | 'medium' | 'high';
-    status: 'pending' | 'in-progess' | 'completed';
+    status: 'pending' | 'in-progress' | 'completed';
     dueDate: string; // parsed back as a string in ISO 8601 format
 }
 
@@ -28,7 +28,7 @@ export interface AddTaskRequest {
     task: 'assignment' | 'project' | 'exam';
     className?: string;
     priority?: 'low' | 'medium' | 'high';
-    status?: 'pending' | 'in-progess' | 'completed';
+    status?: 'pending' | 'in-progress' | 'completed';
     dueDate: string;
 }
 
@@ -38,6 +38,6 @@ export interface UpdateTaskRequest {
     task?: 'assignment' | 'project' | 'exam';
     className?: string;
     priority?: 'low' | 'medium' | 'high';
-    status?: 'pending' | 'in-progess' | 'completed';
+    status?: 'pending' | 'in-progress' | 'completed';
     dueDate?: string;
 }
