@@ -43,7 +43,10 @@ export const addUser = async (req: Request, res: Response): Promise<void> => {
 
 export const updateUser = async (req: Request, res: Response): Promise<void> => {
     try {
-        const { userId } = req.params;
+        const userId: string | undefined = req.user?.userId;
+        if (!userId)
+            throw new Error("user not found");
+
         const { username, email, password }: UserRequest = req.body;
     
         const userIndex = users.findIndex(user => user.userId === userId);
@@ -65,17 +68,23 @@ export const updateUser = async (req: Request, res: Response): Promise<void> => 
             userId: users[userIndex].userId,
             username: users[userIndex].username
         }
-        successResponse(res, userResponse, "Updated user successfully", 201);
+        successResponse(res, userResponse, "Updated user successfully", 200);
 
     }
     catch (error) {
-        errorResponse(res, "User not found", 400);
+        if (error instanceof Error)
+            errorResponse(res, error.message, 404);
+        else 
+            errorResponse(res, "could not update user", 400);
     }
 }
 
 export const deleteUser = async (req: Request, res: Response): Promise<void> => {
     try {
-        const { userId } = req.params;
+        const userId: string | undefined = req.user?.userId;
+        if (!userId)
+            throw new Error("user not found");
+
         const userIndex = users.findIndex(user => user.userId === userId);
         if (userIndex === -1) {
             errorResponse(res, "User not found", 400);
@@ -87,7 +96,10 @@ export const deleteUser = async (req: Request, res: Response): Promise<void> => 
         successResponse(res, userResponse, "Deleted user successfully", 200);
     }
     catch (error) {
-        errorResponse(res, "User not found", 400);
+        if (error instanceof Error)
+            errorResponse(res, error.message, 404);
+        else
+            errorResponse(res, "User not found", 400);
     }
 }
 

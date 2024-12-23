@@ -13,14 +13,9 @@ const emailValidator = () =>
     .isEmail()
     .notEmpty()
 
+    // refactor this to enforce stronger passwords later
 export const passwordValidator = () =>
     body("password")
-    .isString()
-    .trim()
-    .notEmpty()
-
-const userIdValidator = () =>
-    param("userId")
     .isString()
     .trim()
     .notEmpty()
@@ -32,12 +27,7 @@ export const validateAddUser = [
 ]
 
 export const validateUpdateUser = [
-    userIdValidator(),
     usernameValidator().optional(),
     emailValidator().optional(),
     passwordValidator().optional()
-]
-
-export const validateDeleteUser = [
-    userIdValidator()
 ]
