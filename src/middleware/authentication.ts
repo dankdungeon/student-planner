@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import { Request, Response, NextFunction } from 'express';
 import dotenv from 'dotenv';
-import { successResponse, errorResponse } from '../utils/response';
+import { errorResponse } from '../utils/response';
 import { UserResponse } from '../types/User.types'; 
 
 dotenv.config({ path: '../../.env'})
@@ -56,11 +56,11 @@ export const authAccessToken = async (req: Request, res: Response, next: NextFun
     }
 }
 
-export const authRefreshToken = async (req: Request, res: Response, next: NextFunction) => {
+export const authRefreshToken = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
         const refreshToken: string | undefined = req.cookies?.refreshToken;
         if (!refreshToken)
-            return errorResponse(res, "No refresh token provided", 401);
+            throw new Error("No refresh token provided"); 
 
         const JWT_REFRESH_SECRET: string = process.env.JWT_REFRESH_SECRET || '696969';
         const userPayload: UserResponse = await verifyToken(refreshToken, JWT_REFRESH_SECRET);
@@ -69,6 +69,9 @@ export const authRefreshToken = async (req: Request, res: Response, next: NextFu
         next();
     }
     catch (error) {
-        return errorResponse(res, "Invalid or expired refreshToken", 401);
+        if (error instanceof Error) 
+            errorResponse(res, error.message, 401);
+        else
+            errorResponse(res, "Invalid or expired refreshToken", 401);
     }
 }
