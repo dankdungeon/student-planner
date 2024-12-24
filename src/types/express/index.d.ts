@@ -1,9 +1,9 @@
 import { UserResponse } from "../User.types";
 
-declare global {
-    namespace Express {
-        interface Request {
-            user?: UserResponse;
-        }
+declare module 'express-serve-static-core' {
+    interface Request {
+        user?: UserResponse;
     }
 }
+
+export {};

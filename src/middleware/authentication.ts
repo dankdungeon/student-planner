@@ -6,19 +6,16 @@ import { UserResponse } from '../types/User.types';
 
 dotenv.config({ path: '../../.env'})
 
-// authenticate access token with verify
-
-// store refresh token with cookie
 
 // we can make jwt.verify async by wrapping it with a promise
 // you need a callback function to make jwt.verify async
-export const verifyToken = (token: string, secret: string): Promise<any> => {
+export const verifyToken = (token: string, secret: string): Promise<UserResponse> => {
     return new Promise((resolve, reject) => {
         jwt.verify(token, secret, (err, decoded) => {
             if (err) {
                 return reject(err);
             }
-            resolve(decoded);
+            resolve(decoded as UserResponse);
         })
     })
 }
@@ -41,7 +38,6 @@ export const authAccessToken = async (req: Request, res: Response, next: NextFun
         // from express/index.d.ts
         // we extend the request from express to optionally include user as userResponse so we can access userId
         req.user = userPayload;
-        
         next();
     }
     catch (error) {

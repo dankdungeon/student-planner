@@ -3,7 +3,7 @@ import { User, UserResponse, UserRequest } from '../types/User.types';
 import { hashPassword } from '../utils/hashing';
 import { generateUUID } from '../utils/uuid';
 import { successResponse , errorResponse } from '../utils/response';
-
+import "express";
 export let users: User[] = []; // in mem storage
 
 // CRUD operations

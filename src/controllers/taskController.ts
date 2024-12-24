@@ -4,6 +4,7 @@ import { generateUUID } from '../utils/uuid';
 import { successResponse, errorResponse } from '../utils/response';
 import { UserResponse } from '../types/User.types';
 import { users } from './userController';
+import "express";
 
 let tasks: Task[] = []; // in memory storage
 
@@ -15,10 +16,9 @@ export const getAllTasks = (req: Request, res: Response): void => {
 export const addTask = async (req: Request, res: Response): Promise<void> => {
     try {
         const { title, description, task, className, priority, dueDate }: AddTaskRequest = req.body;
-        const user: UserResponse | undefined = req.user;
+        const user = req.user;
         if (!user)
-            throw new Error("no user to associate task with");
-
+            throw new Error("user not logged in");
         const userId: string = user.userId;
         const newUUID = await generateUUID();
         const newTask: Task = {
@@ -65,7 +65,7 @@ export const updateTask = async (req: Request, res: Response): Promise<void> => 
     
         // check for user ownsership
         // match userId from payload to userId from task
-        const user: UserResponse | undefined = req.user;
+        const user = req.user;
         if (!user)
             throw new Error("user not logged in");
         
@@ -108,7 +108,7 @@ export const deleteTask = async (req: Request, res: Response): Promise<void> => 
 
         // check for user ownsership
         // match userId from payload to userId from task
-        const user: UserResponse | undefined = req.user;
+        const user = req.user;
         if (!user)
             throw new Error("user not logged in");
         

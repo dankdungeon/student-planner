@@ -5,8 +5,8 @@ import authRouter from './routers/authRouter';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
 
-dotenv.config({ path: '../.env'});
-const PORT = process.env.PORT
+dotenv.config();
+const PORT = process.env.PORT;
 const app = express();
 
 // parse JSON requests
