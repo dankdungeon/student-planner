@@ -4,8 +4,7 @@ import dotenv from 'dotenv';
 import { errorResponse } from '../utils/response';
 import { UserResponse } from '../types/User.types'; 
 
-dotenv.config({ path: '../../.env'})
-
+dotenv.config();
 
 // we can make jwt.verify async by wrapping it with a promise
 // you need a callback function to make jwt.verify async
@@ -27,17 +26,16 @@ export const authAccessToken = async (req: Request, res: Response, next: NextFun
         if (!authHeader) 
             throw new Error("Authorization header is missing");
         
-
         const token: string = authHeader.split(' ')[1];
         if (!token) 
-            throw new Error("Token is missing form authorization header");
+            throw new Error("Token is missing from authorization header");
         
         const JWT_ACCESS_SECRET: string = process.env.JWT_ACCESS_SECRET || '696969';
-        const userPayload: UserResponse = await verifyToken(token, JWT_ACCESS_SECRET);
-
+        const { userId, username } : UserResponse = await verifyToken(token, JWT_ACCESS_SECRET);
+        
         // from express/index.d.ts
         // we extend the request from express to optionally include user as userResponse so we can access userId
-        req.user = userPayload;
+        req.user = { userId, username };
         next();
     }
     catch (error) {
@@ -59,9 +57,9 @@ export const authRefreshToken = async (req: Request, res: Response, next: NextFu
             throw new Error("No refresh token provided"); 
 
         const JWT_REFRESH_SECRET: string = process.env.JWT_REFRESH_SECRET || '696969';
-        const userPayload: UserResponse = await verifyToken(refreshToken, JWT_REFRESH_SECRET);
+        const { userId, username }: UserResponse = await verifyToken(refreshToken, JWT_REFRESH_SECRET);
 
-        req.user = userPayload;
+        req.user = { userId, username };
         next();
     }
     catch (error) {

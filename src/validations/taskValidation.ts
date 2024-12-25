@@ -47,7 +47,7 @@ const priorityValidator = () =>
 const statusValidator = () =>
     body("status")
     .isString()
-    .isIn(['pending', 'in-progess', 'completed'])
+    .isIn(['pending', 'in-progress', 'completed'])
     .notEmpty()
 
 const dueDateValidator = () =>
@@ -57,7 +57,6 @@ const dueDateValidator = () =>
     .notEmpty()
 
 export const validateAddTask = [
-    userIdValidator(),
     titleValidator(),
     descriptionValidator().optional(),
     taskValidator(),

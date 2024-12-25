@@ -4,7 +4,7 @@ import { AuthResponse } from '../types/AuthResponse';
 import { CookieOptions, Response } from 'express';
 import dotenv from 'dotenv';
 
-dotenv.config({ path: '../.env'});
+dotenv.config();
 const accessKey: string = process.env.JWT_ACCESS_SECRET || '123';
 const refreshKey: string = process.env.JWT_REFRESH_SECRET || '123';
 
