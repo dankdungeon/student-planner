@@ -4,7 +4,7 @@ import { body, param } from 'express-validator';
 // they are instances when called, so they are not mutable
 const taskIdValidator = () =>
     param("taskId")
-    .isString()
+    .isString() 
     .trim()
     .notEmpty()
 
