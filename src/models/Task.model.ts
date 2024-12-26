@@ -1,9 +1,9 @@
 import mongoose, { Schema, Document } from 'mongoose';
 import { Task } from '../types/Task';
 
-interface TaskDocument extends Task, Document {}
+export interface TaskDocument extends Task, Document {}
 
-export const TaskSchema: Schema<TaskDocument> = new Schema({
+const TaskSchema: Schema<TaskDocument> = new Schema({
     taskId: { type: String, required: true, unique: true },
     userId: { type: String, required: true, ref: 'User' },
     title: { type: String, required: true },
@@ -22,4 +22,9 @@ export const TaskSchema: Schema<TaskDocument> = new Schema({
     dueDate: { type: Date, required: true }
 }, { timestamps: true })
 
+// write indexes after i have a better understanding of the querying
+// ill be doing
+
+// make sure to disable autoindex before finish
+// write an index initialization script 
 export const TaskModel = mongoose.model('Task', TaskSchema)
