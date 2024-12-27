@@ -11,16 +11,16 @@ export const getUserTasks = async (req: Request, res: Response): Promise<void> =
     try {
         const user = getAuthenticatedUser(req);  
         if (!user) 
-            throw new Error("user not logged in");
+            throw new Error("Login required.");
 
         const tasks = await TaskModel.find({ userId: user.userId });
-        successResponse(res, tasks, "user tasks successfully retrieved", 200);
+        successResponse(res, tasks, "User's tasks successfully retrieved.", 200);
     }
     catch (error) {
         if (error instanceof Error)
             errorResponse(res, error.message, 401);
         else
-            errorResponse(res, "failed to get user tasks", 500);
+            errorResponse(res, "Failed to get user's tasks.", 500);
     }
 }
 
@@ -49,13 +49,13 @@ export const addTask = async (req: Request, res: Response): Promise<void> => {
             dueDate: newTask.dueDate.toISOString()
         }
         
-        successResponse(res, taskResponse, "task added successfully", 200);
+        successResponse(res, taskResponse, "Task added successfully.", 200);
     }
     catch (error) {
         if (error instanceof Error)
             errorResponse(res, error.message, 404);
         else
-            errorResponse(res, "failed to add task", 500);
+            errorResponse(res, "Failed to add task.", 500);
     }
 }
 
@@ -82,20 +82,20 @@ export const updateTask = async (req: Request, res: Response): Promise<void> => 
         );
 
         if (!updatedTask)
-            throw new Error("failed to find and update task");
+            throw new Error("Failed to find and update task.");
 
         const taskResponse: TaskResponse = { 
             ...updatedTask.toObject(), 
             dueDate: updatedTask.dueDate.toISOString() 
         }
 
-        successResponse(res, taskResponse, "Updated task successfully", 200);
+        successResponse(res, taskResponse, "Updated task successfully.", 200);
     }
     catch (error) {
         if (error instanceof Error)
             errorResponse(res, error.message, 404);
         else
-            errorResponse(res, "failed to update task", 500);
+            errorResponse(res, "Failed to update task.", 500);
     }
 }
 
@@ -106,18 +106,18 @@ export const deleteTask = async (req: Request, res: Response): Promise<void> => 
 
         const deletedTask = await TaskModel.findOneAndDelete({ taskId, userId: user.userId });
         if (!deletedTask)
-            throw new Error("failed to find and delete task");
+            throw new Error("Failed to find and delete task.");
 
         const taskResponse: TaskResponse = { 
             ...deletedTask.toObject(), 
             dueDate: deletedTask.dueDate.toISOString() };
 
-        successResponse(res, taskResponse , "Deleted task successfully", 200);
+        successResponse(res, taskResponse , "Deleted task successfully.", 200);
     }
     catch (error) {
         if (error instanceof Error)
             errorResponse(res, error.message, 404);
         else
-            errorResponse(res, "failed to delete task", 500);
+            errorResponse(res, "Failed to delete task.", 500);
     }
 }

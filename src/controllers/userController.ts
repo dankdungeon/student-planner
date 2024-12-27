@@ -19,16 +19,16 @@ export const getCurrentUser =  async (req: Request, res: Response): Promise<void
         )
 
         if (!userProfile)
-            throw new Error("unable to find user")
+            throw new Error("Unable to find user.")
 
-        successResponse(res, userProfile, "user found successfully", 200);
+        successResponse(res, userProfile, "User found successfully.", 200);
     }
     catch (error) {
         if (error instanceof Error) {
             errorResponse(res, error.message, 404);
         }
         else 
-            errorResponse(res, "failed to get user", 500);
+            errorResponse(res, "Failed to get user.", 500);
     }
 }
 
@@ -41,7 +41,7 @@ export const addUser = async (req: Request, res: Response): Promise<void> => {
             $or: [{ username }, { email }]
         });
         if (existingUser) {
-            throw new Error("Username or email already exists");
+            throw new Error("Username or email already exists.");
         }
 
         const hashedPassword = await hashPassword(password);
@@ -62,13 +62,13 @@ export const addUser = async (req: Request, res: Response): Promise<void> => {
             username
         }
 
-        successResponse(res, userResponse, "Added user successfully", 201);
+        successResponse(res, userResponse, "Added user successfully.", 201);
     }
     catch (error) {
         if (error instanceof Error)
             errorResponse(res, error.message, 400);
         else
-            errorResponse(res, "Failed to add user", 400);
+            errorResponse(res, "Failed to add user.", 400);
     }
 }
 
@@ -89,7 +89,7 @@ export const updateUser = async (req: Request, res: Response): Promise<void> => 
                 ]
             });
             if (existingUser) {
-                throw new Error("Username or email already taken");
+                throw new Error("Username or email already taken.");
             }
         }
 
@@ -106,7 +106,7 @@ export const updateUser = async (req: Request, res: Response): Promise<void> => 
         )
 
         if (!updatedUser)
-            throw new Error("failed to find and update user");
+            throw new Error("Failed to find and update user.");
 
         const userResponse: UserResponse = {
             userId: updatedUser.userId,
@@ -119,7 +119,7 @@ export const updateUser = async (req: Request, res: Response): Promise<void> => 
         if (error instanceof Error)
             errorResponse(res, error.message, 404);
         else 
-            errorResponse(res, "could not update user", 400);
+            errorResponse(res, "Failed to update user.", 400);
     }
 }
 
@@ -129,20 +129,20 @@ export const deleteUser = async (req: Request, res: Response): Promise<void> => 
 
         const deletedUser = await UserModel.findOneAndDelete({ userId: user.userId })
         if (!deletedUser)
-            throw new Error("failed to find and delete user");
+            throw new Error("Failed to delete user.");
 
         const userResponse: UserResponse = {
             userId: deletedUser.userId, 
             username: deletedUser.username 
         };
 
-        successResponse(res, userResponse, "Deleted user successfully", 200);
+        successResponse(res, userResponse, "Deleted user successfully.", 200);
     }
     catch (error) {
         if (error instanceof Error)
             errorResponse(res, error.message, 404);
         else
-            errorResponse(res, "User not found", 400);
+            errorResponse(res, "Failed to delete user.", 400);
     }
 }
 

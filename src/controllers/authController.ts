@@ -14,12 +14,12 @@ export const Login = async (req: Request, res:Response): Promise<void> => {
         // validate user
         const user = await UserModel.findOne({ username })
         if (!user)
-            throw new Error("User does not exist");
+            throw new Error("User does not exist.");
 
         // validate password
         const isValid: boolean = await passwordValidation(password, user.password);
         if (!isValid)
-            throw new Error('Invalid password');
+            throw new Error('Invalid password.');
 
         const userResponse: UserResponse = { userId: user.userId, username: user.username };
         const newAccessToken: string = await generateAccessToken(userResponse);
@@ -33,15 +33,15 @@ export const Login = async (req: Request, res:Response): Promise<void> => {
     }
     catch (error) {
         if (error instanceof Error) {
-            if (error.message === 'User not found')
+            if (error.message === 'User does not exist.')
                 errorResponse(res, error.message, 404);
-            else if (error.message === 'Invalid password')
+            else if (error.message === 'Invalid password.')
                 errorResponse(res, error.message, 403);
             else
-                errorResponse(res, error.message, 403);
+                errorResponse(res, error.message, 400);
         }
         else {
-            errorResponse(res, "Failed to login", 403);
+            errorResponse(res, "Failed to login.", 400);
         }
     }
 }
@@ -56,10 +56,10 @@ export const Logout = async (req: Request, res: Response): Promise<void> => {
             maxAge: 0
         })
 
-        successResponse(res, req.user, "Logged out successfully", 200);
+        successResponse(res, req.user, "Logged out successfully.", 200);
     }
     catch (error) {
-        errorResponse(res, "Failed to log out", 403);
+        errorResponse(res, "Failed to log out.", 400);
     }
 }
 
@@ -71,12 +71,12 @@ export const refreshAccessToken = async (req: Request, res: Response): Promise<v
         const newAccessToken = await generateAccessToken(user);
 
         const authResponse: AuthResponse = { user, accessToken: newAccessToken };
-        successResponse(res, authResponse, "refreshed access token successfully");
+        successResponse(res, authResponse, "Refreshed access token successfully.");
     }
     catch (error) {
         if (error instanceof Error) 
             errorResponse(res, error.message, 403);
         else
-            errorResponse(res, "failed to refresh access token", 403);
+            errorResponse(res, "Failed to refresh access token.", 403);
     }
 }
