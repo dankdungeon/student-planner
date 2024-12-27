@@ -7,7 +7,6 @@ import { successResponse, errorResponse } from '../utils/response';
 import { getAuthenticatedUser } from '../utils/getAuthenticatedUser';
 import { UserModel } from '../models/User.model';
 
-
 export const Login = async (req: Request, res:Response): Promise<void> => { 
     try {
         const { username, password }: LoginRequest = req.body;
