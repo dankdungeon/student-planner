@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { User, UserResponse, UserRequest } from '../types/User.types';
+import { UserResponse, UserRequest } from '../types/User.types';
 import { hashPassword } from '../utils/hashing';
 import { generateUUID } from '../utils/uuid';
 import { successResponse , errorResponse } from '../utils/response';
