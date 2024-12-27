@@ -24,6 +24,7 @@ const TaskSchema: Schema<TaskDocument> = new Schema({
 
 // write indexes after i have a better understanding of the querying
 // ill be doing
+// rework this later to use classIds instead of className
 
 // make sure to disable autoindex before finish
 // write an index initialization script 
