@@ -8,7 +8,6 @@ const UserSchema: Schema<UserDocument> = new Schema({
     username: { type: String, required: true, unique: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    tasks: [{ type: String, required: true, ref: 'Task' }]
 }, { timestamps: true })
 
 // write indexes after i have a better understanding of the querying
