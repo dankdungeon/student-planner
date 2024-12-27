@@ -1,54 +1,61 @@
 import { Request, Response } from 'express';
-import { Task, TaskResponse, AddTaskRequest, UpdateTaskRequest } from '../types/Task';
+import { TaskResponse, AddTaskRequest, UpdateTaskRequest } from '../types/Task';
 import { generateUUID } from '../utils/uuid';
 import { successResponse, errorResponse } from '../utils/response';
-import { UserResponse } from '../types/User.types';
-import { users } from './userController';
+import { TaskModel } from '../models/Task.model';
+import { getAuthenticatedUser } from '../utils/getAuthenticatedUser';
 import "express";
 
-let tasks: Task[] = []; // in memory storage
-
 // CRUD operations
-export const getAllTasks = (req: Request, res: Response): void => {
-    res.json(tasks);
+export const getUserTasks = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const user = getAuthenticatedUser(req);  
+        if (!user) 
+            throw new Error("user not logged in");
+
+        const tasks = await TaskModel.find({ userId: user.userId });
+        successResponse(res, tasks, "user tasks successfully retrieved", 200);
+    }
+    catch (error) {
+        if (error instanceof Error)
+            errorResponse(res, error.message, 401);
+        else
+            errorResponse(res, "failed to get user tasks", 500);
+    }
 }
 
 export const addTask = async (req: Request, res: Response): Promise<void> => {
     try {
         const { title, description, task, className, priority, dueDate }: AddTaskRequest = req.body;
-        const user = req.user;
-        if (!user)
-            throw new Error("user not logged in");
-        const userId: string = user.userId;
-        const newUUID = await generateUUID();
-        const newTask: Task = {
-            taskId: newUUID,
-            userId,
-            title,
-            description: description || undefined,
-            task,
-            className: className || undefined,
-            priority: priority || undefined,
-            status: 'pending',
-            dueDate: new Date(dueDate),
-        }
-        tasks.push(newTask);
-        
-        // associate task id with user
-        const userIndex = users.findIndex(user => user.userId === userId);
-        if (userIndex === -1) 
-            throw new Error("user not found");
-        
-        users[userIndex].tasks.push(newUUID);
+        const user = getAuthenticatedUser(req);
 
-        const taskResponse: TaskResponse = { ...newTask, dueDate: newTask.dueDate.toISOString() };
-        successResponse(res, taskResponse, "Added tasks successfully", 201);
+        const newUUID = await generateUUID();
+        const newTask = new TaskModel({
+            taskId: newUUID,
+            userId: user.userId,
+            title,
+            description,
+            task,
+            className,
+            priority,
+            dueDate: new Date(dueDate),
+            status: 'pending'
+        })
+
+        await newTask.save();
+
+        const taskResponse: TaskResponse = {
+            ...newTask.toObject(),
+            dueDate: newTask.dueDate.toISOString()
+        }
+        
+        successResponse(res, taskResponse, "task added successfully", 200);
     }
     catch (error) {
         if (error instanceof Error)
             errorResponse(res, error.message, 404);
         else
-            errorResponse(res, "failed to add task", 400);
+            errorResponse(res, "failed to add task", 500);
     }
 }
 
@@ -56,82 +63,61 @@ export const updateTask = async (req: Request, res: Response): Promise<void> => 
     try {
         const { taskId } = req.params;
         const { title, description, task, className, priority, status, dueDate }: UpdateTaskRequest = req.body;
-    
-        const taskIndex = tasks.findIndex(task => task.taskId === taskId);
-        if (taskIndex === -1) {
-            errorResponse(res, "Task not found", 404);
-            return;
-        }
-    
-        // check for user ownsership
-        // match userId from payload to userId from task
-        const user = req.user;
-        if (!user)
-            throw new Error("user not logged in");
-        
-        // check if user owns task
-        const userIndex = users.findIndex(u => u.userId === user.userId);
-        if (userIndex === -1) 
-            throw new Error("user not found");
+        const user = getAuthenticatedUser(req);
 
-        const taskExists = users[userIndex].tasks.some(t => t === taskId)
-        if (!taskExists)
-            throw new Error("user doesnt own task");
-
-        tasks[taskIndex] = {
-            ...tasks[taskIndex],
+        const updates = {
             ...(title && { title }),
             ...(description && { description }),
             ...(task && { task }),
             ...(className && { className }),
             ...(priority && { priority }),
             ...(status && { status }),
-            ...(dueDate && { dueDate: new Date(dueDate) }),
+            ...(dueDate && { dueDate: new Date(dueDate) })
         }
-        const taskResponse: TaskResponse = { ...tasks[taskIndex], dueDate: tasks[taskIndex].dueDate.toISOString() }
+
+        const updatedTask = await TaskModel.findOneAndUpdate(
+            { taskId, userId: user.userId },
+            { $set: updates },
+            { new: true }
+        );
+
+        if (!updatedTask)
+            throw new Error("failed to find and update task");
+
+        const taskResponse: TaskResponse = { 
+            ...updatedTask.toObject(), 
+            dueDate: updatedTask.dueDate.toISOString() 
+        }
+
         successResponse(res, taskResponse, "Updated task successfully", 200);
     }
     catch (error) {
         if (error instanceof Error)
             errorResponse(res, error.message, 404);
         else
-            errorResponse(res, "failed to update task", 400);
+            errorResponse(res, "failed to update task", 500);
     }
 }
 
 export const deleteTask = async (req: Request, res: Response): Promise<void> => {
     try {
         const { taskId } = req.params;
-        const taskIndex = tasks.findIndex(task => task.taskId === taskId);
-        if (taskIndex === -1) 
-            throw new Error("task not found");
+        const user = getAuthenticatedUser(req);
 
-        // check for user ownsership
-        // match userId from payload to userId from task
-        const user = req.user;
-        if (!user)
-            throw new Error("user not logged in");
-        
-        // check if user owns task
-        const userIndex = users.findIndex(u => u.userId === user.userId);
-        if (userIndex === -1) 
-            throw new Error("user not found");
+        const deletedTask = await TaskModel.findOneAndDelete({ taskId, userId: user.userId });
+        if (!deletedTask)
+            throw new Error("failed to find and delete task");
 
-        const taskExists = users[userIndex].tasks.some(t => t === taskId)
-        if (!taskExists)
-            throw new Error("user doesnt own task");
+        const taskResponse: TaskResponse = { 
+            ...deletedTask.toObject(), 
+            dueDate: deletedTask.dueDate.toISOString() };
 
-        // remove taskid from user
-        users[userIndex].tasks = users[userIndex].tasks.filter(t => t !== taskId);
-
-        const [deletedTask] = tasks.splice(taskIndex, 1);
-        const taskResponse: TaskResponse = { ...deletedTask, dueDate: deletedTask.dueDate.toISOString() };
         successResponse(res, taskResponse , "Deleted task successfully", 200);
     }
     catch (error) {
         if (error instanceof Error)
             errorResponse(res, error.message, 404);
         else
-            errorResponse(res, "failed to delete task", 400);
+            errorResponse(res, "failed to delete task", 500);
     }
 }
