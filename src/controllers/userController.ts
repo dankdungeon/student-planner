@@ -3,16 +3,32 @@ import { User, UserResponse, UserRequest } from '../types/User.types';
 import { hashPassword } from '../utils/hashing';
 import { generateUUID } from '../utils/uuid';
 import { successResponse , errorResponse } from '../utils/response';
+import { getAuthenticatedUser } from '../utils/getAuthenticatedUser';
+import { UserModel } from '../models/User.model';
 import "express";
-export let users: User[] = []; // in mem storage
+
 
 // CRUD operations
-export const getAllUsers =  async (req: Request, res: Response): Promise<void> => {
+export const getCurrentUser =  async (req: Request, res: Response): Promise<void> => {
     try {
-        res.json(users);
+        const user = getAuthenticatedUser(req);
+
+        const userProfile = await UserModel.findOne(
+            { userId: user.userId },
+            { password: 0 } // sanitize password
+        )
+
+        if (!userProfile)
+            throw new Error("unable to find user")
+
+        successResponse(res, userProfile, "user found successfully", 200);
     }
     catch (error) {
-        errorResponse(res, "Failed to get users", 500);
+        if (error instanceof Error) {
+            errorResponse(res, error.message, 404);
+        }
+        else 
+            errorResponse(res, "failed to get user", 500);
     }
 }
 
@@ -20,56 +36,84 @@ export const addUser = async (req: Request, res: Response): Promise<void> => {
     try {
         const { username, email, password }: UserRequest = req.body;
 
+        // check if username or email already used
+        const existingUser = await UserModel.findOne({
+            $or: [{ username }, { email }]
+        });
+        if (existingUser) {
+            throw new Error("Username or email already exists");
+        }
+
         const hashedPassword = await hashPassword(password);
         const newUUID = await generateUUID();
-        const newUser: User = {
+
+        const newUser = new UserModel({
             userId: newUUID,
             username,
             email,
             password: hashedPassword,
             tasks: []
-        }
+        })
+
+        await newUser.save();
+
         const userResponse: UserResponse = {
             userId: newUUID,
             username
         }
-        users.push(newUser);
+
         successResponse(res, userResponse, "Added user successfully", 201);
     }
     catch (error) {
-        errorResponse(res, "Failed to add user", 400);
+        if (error instanceof Error)
+            errorResponse(res, error.message, 400);
+        else
+            errorResponse(res, "Failed to add user", 400);
     }
 }
 
 export const updateUser = async (req: Request, res: Response): Promise<void> => {
     try {
-        const userId: string | undefined = req.user?.userId;
-        if (!userId)
-            throw new Error("user not found");
-
+        const user = getAuthenticatedUser(req);
         const { username, email, password }: UserRequest = req.body;
-    
-        const userIndex = users.findIndex(user => user.userId === userId);
-        if (userIndex === -1) {
-            errorResponse(res, "User not found", 404);
-            return;
-        }
-        
-        // hash the password
+
         const hashedPassword = password ? await hashPassword(password) : undefined;
 
-        users[userIndex] = { // update this
-            ...users[userIndex],
+        // check if new username or email conficts with existing user
+        if (username || email) {
+            const existingUser = await UserModel.findOne({
+                userId: { $ne: user.userId }, // not current user
+                $or: [
+                    ...(username ? [{ username }] : []), // checks username and email
+                    ...(email ? [{ email }] : [])
+                ]
+            });
+            if (existingUser) {
+                throw new Error("Username or email already taken");
+            }
+        }
+
+        const updates = {
             ...(username && { username }),
             ...(email && { email }),
             ...(password && { password: hashedPassword })
         }
-        const userResponse: UserResponse = {
-            userId: users[userIndex].userId,
-            username: users[userIndex].username
-        }
-        successResponse(res, userResponse, "Updated user successfully", 200);
 
+        const updatedUser = await UserModel.findOneAndUpdate(
+            { userId: user.userId },
+            { $set: updates},
+            { new: true }
+        )
+
+        if (!updatedUser)
+            throw new Error("failed to find and update user");
+
+        const userResponse: UserResponse = {
+            userId: updatedUser.userId,
+            username: updatedUser.username
+        }
+
+        successResponse(res, userResponse, "Updated user successfully", 200);
     }
     catch (error) {
         if (error instanceof Error)
@@ -81,18 +125,17 @@ export const updateUser = async (req: Request, res: Response): Promise<void> => 
 
 export const deleteUser = async (req: Request, res: Response): Promise<void> => {
     try {
-        const userId: string | undefined = req.user?.userId;
-        if (!userId)
-            throw new Error("user not found");
+        const user = getAuthenticatedUser(req);
 
-        const userIndex = users.findIndex(user => user.userId === userId);
-        if (userIndex === -1) {
-            errorResponse(res, "User not found", 400);
-            return;
-        }
-    
-        const [deletedUser] = users.splice(userIndex, 1);
-        const userResponse: UserResponse = { userId: deletedUser.userId, username: deletedUser.username };
+        const deletedUser = await UserModel.findOneAndDelete({ userId: user.userId })
+        if (!deletedUser)
+            throw new Error("failed to find and delete user");
+
+        const userResponse: UserResponse = {
+            userId: deletedUser.userId, 
+            username: deletedUser.username 
+        };
+
         successResponse(res, userResponse, "Deleted user successfully", 200);
     }
     catch (error) {
