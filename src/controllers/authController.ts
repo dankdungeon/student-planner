@@ -1,26 +1,23 @@
 import { AuthResponse, LoginRequest } from '../types/AuthResponse';
-import { users } from './userController';
 import { UserResponse } from '../types/User.types';
 import { Request, Response } from 'express';
 import { passwordValidation } from '../utils/hashing';
 import { generateAccessToken, generateRefreshToken, setRefreshTokenCookie } from '../utils/tokenGeneration';
 import { successResponse, errorResponse } from '../utils/response';
+import { getAuthenticatedUser } from '../utils/getAuthenticatedUser';
+import { UserModel } from '../models/User.model';
 
-/*
-implement login, logout, token refreshing
-*/
-// in mem storage for refresh tokens
-const refreshTokens = new Set<string>();
 
 export const Login = async (req: Request, res:Response): Promise<void> => { 
-    const { username, password }: LoginRequest = req.body;
-
-    // Validate credentials
     try {
-        const user = users.find(u => u.username === username);
+        const { username, password }: LoginRequest = req.body;
+        
+        // validate user
+        const user = await UserModel.findOne({ username })
         if (!user)
-            throw new Error('User not found');
+            throw new Error("User does not exist");
 
+        // validate password
         const isValid: boolean = await passwordValidation(password, user.password);
         if (!isValid)
             throw new Error('Invalid password');
@@ -33,7 +30,6 @@ export const Login = async (req: Request, res:Response): Promise<void> => {
         // generates cookie for refresh token to be stored in
         await setRefreshTokenCookie(res, newRefreshToken);
 
-        refreshTokens.add(newRefreshToken);
         successResponse(res, authResponse, "Logged in successfully", 200);
     }
     catch (error) {
@@ -53,11 +49,7 @@ export const Login = async (req: Request, res:Response): Promise<void> => {
 
 export const Logout = async (req: Request, res: Response): Promise<void> => {
     try {
-        const refreshToken: string = req.cookies.refreshToken; // from cookieParser
-
-        refreshTokens.delete(refreshToken); // delete from storage
-
-        // clear cookie
+        // clear cookie with refresh token
         res.cookie('refreshToken', '', {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
@@ -74,9 +66,7 @@ export const Logout = async (req: Request, res: Response): Promise<void> => {
 
 export const refreshAccessToken = async (req: Request, res: Response): Promise<void> => {
     try {
-        const user: UserResponse | undefined = req.user;
-        if (!user)
-           throw new Error("no user from payload");
+        const user = getAuthenticatedUser(req);
 
         // generate new token 
         const newAccessToken = await generateAccessToken(user);
