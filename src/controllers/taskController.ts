@@ -10,8 +10,6 @@ import "express";
 export const getUserTasks = async (req: Request, res: Response): Promise<void> => {
     try {
         const user = getAuthenticatedUser(req);  
-        if (!user) 
-            throw new Error("Login required.");
 
         const tasks = await TaskModel.find({ userId: user.userId });
         successResponse(res, tasks, "User's tasks successfully retrieved.", 200);
