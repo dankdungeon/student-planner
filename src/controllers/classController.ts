@@ -33,12 +33,12 @@ export const addClass = async (req: Request, res: Response): Promise<void> => {
             classId: newUUID,
             userId: user.userId,
             name,
-            professor,
-            start: start ? new Date(start) : "",
-            end: end ? new Date(end) : "",
-            location,
-            days,
-            semester,
+            ...(professor && { professor }),
+            ...(start && { start: new Date(start) }),
+            ...(end && { end: new Date(end) }),
+            ...(location && { location }),
+            ...(days && { days }),
+            ...(semester && { semester })
         })
          
         await newClass.save();
