@@ -111,8 +111,8 @@ export const deleteClass = async (req: Request, res: Response): Promise<void> =>
 
         const classResponse: ClassResponse = {
             ...deletedClass.toObject(),
-            start: deletedClass.start ? deletedClass.start.toISOString() : "",
-            end: deletedClass.end ? deletedClass.end.toISOString() : ""
+            start: deletedClass.start ? deletedClass.start.toISOString() : null,
+            end: deletedClass.end ? deletedClass.end.toISOString() : null
         }
 
         successResponse(res, classResponse, "Deleted class successfully.", 200);

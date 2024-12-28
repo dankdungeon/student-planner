@@ -11,7 +11,7 @@ const TaskSchema: Schema<TaskDocument> = new Schema({
     task: { type: String, required: true,
         enum: ['assignment', 'project', 'exam']
      },
-    className: { type: String },
+    classId: { type: String, required: true, ref: 'Class' },
     priority: { type: String,
         enum: ['low', 'medium', 'high']
      },

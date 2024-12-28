@@ -4,6 +4,7 @@ import { generateUUID } from '../utils/uuid';
 import { successResponse, errorResponse } from '../utils/response';
 import { TaskModel } from '../models/Task.model';
 import { getAuthenticatedUser } from '../utils/getAuthenticatedUser';
+import { verifyClassOwnership } from '../utils/verifyClassOwnership';
 import "express";
 
 // CRUD operations
@@ -24,8 +25,9 @@ export const getUserTasks = async (req: Request, res: Response): Promise<void> =
 
 export const addTask = async (req: Request, res: Response): Promise<void> => {
     try {
-        const { title, description, task, className, priority, dueDate }: AddTaskRequest = req.body;
+        const { title, description, task, classId, priority, dueDate }: AddTaskRequest = req.body;
         const user = getAuthenticatedUser(req);
+        const userClass = await verifyClassOwnership(classId, user);
 
         const newUUID = await generateUUID();
         const newTask = new TaskModel({
@@ -34,7 +36,7 @@ export const addTask = async (req: Request, res: Response): Promise<void> => {
             title,
             description,
             task,
-            className,
+            classId: userClass.classId,
             priority,
             dueDate: new Date(dueDate),
             status: 'pending'
@@ -60,14 +62,18 @@ export const addTask = async (req: Request, res: Response): Promise<void> => {
 export const updateTask = async (req: Request, res: Response): Promise<void> => {
     try {
         const { taskId } = req.params;
-        const { title, description, task, className, priority, status, dueDate }: UpdateTaskRequest = req.body;
+        const { title, description, task, classId, priority, status, dueDate }: UpdateTaskRequest = req.body;
         const user = getAuthenticatedUser(req);
+
+        let userClass;
+        if (classId)
+            userClass = await verifyClassOwnership(classId, user);
 
         const updates = {
             ...(title && { title }),
             ...(description && { description }),
             ...(task && { task }),
-            ...(className && { className }),
+            ...(classId && { classId }),
             ...(priority && { priority }),
             ...(status && { status }),
             ...(dueDate && { dueDate: new Date(dueDate) })

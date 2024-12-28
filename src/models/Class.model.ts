@@ -8,8 +8,8 @@ const ClassSchema: Schema<ClassDocument> = new Schema({
     userId: { type: String, required: true },
     name: { type: String, required: true },
     professor: { type: String, default: ""},
-    start: { type: Date, default: "" },
-    end: { type: Date, default: "" },
+    start: { type: Date, default: null },
+    end: { type: Date, default: null },
     location: { type: String, default: "" },
     days: { type: [String], default: [],
         enum: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']

@@ -32,8 +32,8 @@ const taskValidator = () =>
     .isIn(['assignment', 'project', 'exam'])
     .notEmpty()
 
-const classNameValidator = () =>
-    body("className")
+const classIdValidator = () =>
+    body("classId")
     .isString()
     .trim()
     .notEmpty()
@@ -60,7 +60,7 @@ export const validateAddTask = [
     titleValidator(),
     descriptionValidator().optional(),
     taskValidator(),
-    classNameValidator().optional(),
+    classIdValidator(),
     priorityValidator().optional(),
     dueDateValidator()
 ]
@@ -69,7 +69,7 @@ export const validateUpdateTask = [
     taskIdValidator(),
     titleValidator().optional(),
     descriptionValidator().optional(),
-    classNameValidator().optional(),
+    classIdValidator(),
     priorityValidator().optional(),
     statusValidator().optional(),
     dueDateValidator().optional()
