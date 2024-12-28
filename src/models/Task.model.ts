@@ -20,12 +20,11 @@ const TaskSchema: Schema<TaskDocument> = new Schema({
         default: 'pending'
      },
     dueDate: { type: Date, required: true }
-}, { timestamps: true })
-
-// write indexes after i have a better understanding of the querying
-// ill be doing
-// rework this later to use classIds instead of className
+}, { timestamps: true, autoindex: false })
 
 // make sure to disable autoindex before finish
 // write an index initialization script 
+TaskSchema.index({ userId: 1 });
+TaskSchema.index({ userId: 1, taskId: 1 });
+
 export const TaskModel = mongoose.model('Task', TaskSchema)

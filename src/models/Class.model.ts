@@ -15,7 +15,9 @@ const ClassSchema: Schema<ClassDocument> = new Schema({
         enum: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
     },
     semester: { type: String, default: "" }
-}, { timestamps: true }); 
+}, { timestamps: true, autoIndex: false }); 
 
-// write indexes later
+ClassSchema.index({ userId: 1 });
+ClassSchema.index({ classId: 1, userId: 1 });
+
 export const ClassModel = mongoose.model('Class', ClassSchema);

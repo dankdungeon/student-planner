@@ -8,11 +8,9 @@ const UserSchema: Schema<UserDocument> = new Schema({
     username: { type: String, required: true, unique: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-}, { timestamps: true })
+}, { timestamps: true, autoIndex: false })
 
-// write indexes after i have a better understanding of the querying
-// ill be doing
+UserSchema.index({ userId: 1 });
+UserSchema.index({ username: 1, email: 1 });
 
-// make sure to disable autoindex before finish
-// write an index initialization script 
 export const UserModel = mongoose.model('User', UserSchema);
