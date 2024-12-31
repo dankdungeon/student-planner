@@ -24,7 +24,6 @@ const TaskSchema: Schema<TaskDocument> = new Schema({
 
 // make sure to disable autoindex before finish
 // write an index initialization script 
-TaskSchema.index({ userId: 1 });
 TaskSchema.index({ userId: 1, taskId: 1 });
 
 export const TaskModel = mongoose.model('Task', TaskSchema)

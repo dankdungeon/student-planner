@@ -17,7 +17,6 @@ const ClassSchema: Schema<ClassDocument> = new Schema({
     semester: { type: String, default: "" }
 }, { timestamps: true, autoIndex: false }); 
 
-ClassSchema.index({ userId: 1 });
 ClassSchema.index({ classId: 1, userId: 1 });
 
 export const ClassModel = mongoose.model('Class', ClassSchema);

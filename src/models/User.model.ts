@@ -10,7 +10,6 @@ const UserSchema: Schema<UserDocument> = new Schema({
     password: { type: String, required: true },
 }, { timestamps: true, autoIndex: false })
 
-UserSchema.index({ userId: 1 });
 UserSchema.index({ username: 1, email: 1 });
 
 export const UserModel = mongoose.model('User', UserSchema);
